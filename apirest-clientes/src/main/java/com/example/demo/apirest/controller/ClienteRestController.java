@@ -1,8 +1,14 @@
 package com.example.demo.apirest.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -15,8 +21,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.apirest.entity.Cliente;
 import com.example.demo.apirest.service.ClienteService;
@@ -149,8 +157,8 @@ public class ClienteRestController {
 	*/
 	@DeleteMapping("/cliente/{id}")
 	public ResponseEntity<?> eliminarCliente(@PathVariable Long id) {
-				
-		Cliente cliente=null;
+		Cliente cliActualizar=servicio.findById(id);	
+		
 		Map<String,Object> response=new HashMap<>();
 		
 		try {
@@ -162,12 +170,43 @@ public class ClienteRestController {
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		if(id==null) {
+		if(cliActualizar==null) {
 			response.put("mensaje", "El cliente id:".concat(id.toString().concat(" no existe en la BD.")));
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 		}
 		response.put("mensaje", "Eliminado con éxito.");
-		return new ResponseEntity<Cliente>(cliente,HttpStatus.OK);
+		response.put("cliente", cliActualizar);
+		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK);
+	}
+	@PostMapping("cliente/subida")
+	public ResponseEntity<?> subida(@RequestParam("archivo") MultipartFile archivo, @RequestParam("id") Long id){// requestparamasocia un archivo a una imagen
+		Map<String,Object> response=new HashMap<>();
+		
+		Cliente c=servicio.findById(id);
+		
+		if(!archivo.isEmpty()) {
+			String nombreArchivo=archivo.getOriginalFilename();//RECOGEMOS EL NOMBRE DEL ARCHIVO
+			Path rutaArchivo=Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();//GUARDAMOS LA RUTA DE LA CARPETA UPLOADS
+			
+			
+		
+		try {
+			Files.copy(archivo.getInputStream(), rutaArchivo);
+		} catch (IOException e) {
+			response.put("mensaje", "Error al subir la imagen");
+			response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		c.setImagen(nombreArchivo);
+		servicio.save(c);
+		
+		response.put("cliente", c);
+		response.put("mensaje", "Has subido correctamente la imagen"+nombreArchivo);
+		}
+		
+		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK);
 	}
 	
 }

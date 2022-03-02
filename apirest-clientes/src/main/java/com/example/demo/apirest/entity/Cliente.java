@@ -32,6 +32,18 @@ public class Cliente {
 	@Column(name="created_at")
 	@Temporal(TemporalType.DATE)
 	private Date createdAt;
+	private String imagen;
+	
+	public String getImagen() {
+		return imagen;
+	}
+
+
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
+
+
 	//para crear un cliente con fecha del sistema
 	@PrePersist
 	public void prePersist() {

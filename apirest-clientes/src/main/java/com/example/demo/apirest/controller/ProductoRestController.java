@@ -125,7 +125,7 @@ public class ProductoRestController {
 	@DeleteMapping("/producto/{id}")
 	public ResponseEntity<?> eliminarProducto(@PathVariable Long id) {
 				
-		Producto producto=null;
+		Producto proActualizar=servicio.findById(id);;
 		Map<String,Object> response=new HashMap<>();
 		
 		try {
@@ -137,11 +137,12 @@ public class ProductoRestController {
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		if(id==null) {
+		if(proActualizar==null) {
 			response.put("mensaje", "El producto id:".concat(id.toString().concat(" no existe en la BD.")));
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 		}
 		response.put("mensaje", "Eliminado con éxito.");
-		return new ResponseEntity<Producto>(producto,HttpStatus.OK);
+		response.put("producto", proActualizar);
+		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK);
 	}
 }
