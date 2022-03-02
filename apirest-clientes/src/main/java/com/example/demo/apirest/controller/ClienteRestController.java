@@ -1,17 +1,21 @@
 package com.example.demo.apirest.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.apirest.entity.Cliente;
+import com.example.demo.apirest.entity.Region;
 import com.example.demo.apirest.service.ClienteService;
 
 @RestController
@@ -163,6 +168,17 @@ public class ClienteRestController {
 		
 		try {
 			servicio.delete(id);
+			
+			String nombreFotoAnterior=cliActualizar.getImagen();
+			
+			if(nombreFotoAnterior != null && nombreFotoAnterior.length() >0) {
+				Path rutaFotoAnterior=Paths.get("uploads").resolve(nombreFotoAnterior).toAbsolutePath();
+				File archivoFotoAnterior=rutaFotoAnterior.toFile();
+				
+				if(archivoFotoAnterior.exists()  && archivoFotoAnterior.canRead()) {
+					archivoFotoAnterior.delete();
+				}
+			}
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al eliminar.");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
@@ -178,6 +194,7 @@ public class ClienteRestController {
 		response.put("cliente", cliActualizar);
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK);
 	}
+	
 	@PostMapping("cliente/subida")
 	public ResponseEntity<?> subida(@RequestParam("archivo") MultipartFile archivo, @RequestParam("id") Long id){// requestparamasocia un archivo a una imagen
 		Map<String,Object> response=new HashMap<>();
@@ -185,7 +202,7 @@ public class ClienteRestController {
 		Cliente c=servicio.findById(id);
 		
 		if(!archivo.isEmpty()) {
-			String nombreArchivo=archivo.getOriginalFilename();//RECOGEMOS EL NOMBRE DEL ARCHIVO
+			String nombreArchivo=UUID.randomUUID().toString()+""+archivo.getOriginalFilename().replace(" ","");//RECOGEMOS EL NOMBRE DEL ARCHIVO, con uuid creamos un id especifico para cada archivo y replace quita espacios
 			Path rutaArchivo=Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();//GUARDAMOS LA RUTA DE LA CARPETA UPLOADS
 			
 			
@@ -199,6 +216,17 @@ public class ClienteRestController {
 			
 		}
 		
+		String nombreFotoAnterior=c.getImagen();
+		
+		if(nombreFotoAnterior != null && nombreFotoAnterior.length() >0) {
+			Path rutaFotoAnterior=Paths.get("uploads").resolve(nombreFotoAnterior).toAbsolutePath();
+			File archivoFotoAnterior=rutaFotoAnterior.toFile();
+			
+			if(archivoFotoAnterior.exists()  && archivoFotoAnterior.canRead()) {
+				archivoFotoAnterior.delete();
+			}
+		}
+		
 		c.setImagen(nombreArchivo);
 		servicio.save(c);
 		
@@ -207,6 +235,32 @@ public class ClienteRestController {
 		}
 		
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.OK);
+	}
+	
+	@GetMapping("/uploads/imagen/{nombreImagen:.+}")
+	public ResponseEntity<Resource> verImagen(@PathVariable String nombreImagen){
+		Path rutaImagen=Paths.get("uploads").resolve(nombreImagen).toAbsolutePath();
+		Resource recurso=null;
+		
+		try {
+			recurso=new UrlResource(rutaImagen.toUri());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		if(!recurso.exists() && !recurso.isReadable()) {
+			throw new RuntimeException("Error no se puede cargar la imagen "+nombreImagen);
+		}
+		
+		HttpHeaders cabecera=new HttpHeaders();
+		cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\" "+recurso.getFilename()+"\"");//aCCEDEMOS AL RECURSO POR CABECERA pasando la URL YA QUE SPRING NO DEJA ACCEDER A SUBCARPETAS POR SEGURIDAD
+		return new ResponseEntity<Resource>(recurso,cabecera,HttpStatus.OK);
+		
+	}
+	
+	@GetMapping("/clientes/regiones")
+	public List<Region> listarRegiones() {
+		return servicio.findAllRegions();
 	}
 	
 }
