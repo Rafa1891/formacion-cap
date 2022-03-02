@@ -10,3 +10,6 @@ INSERT INTO clientes (nombre,apellido,email,telefono,created_at) VALUES ('Mirna'
 INSERT INTO clientes (nombre,apellido,email,telefono,created_at) VALUES ('Pepe','Mojica','pm@email.com',6245455,'2022-03-01');
 INSERT INTO clientes (nombre,apellido,email,telefono,created_at) VALUES ('Juan','Chavez','jc@email.com',6214545,'2022-03-01');
 INSERT INTO clientes (nombre,apellido,email,telefono,created_at) VALUES ('Enrrique','Iglesias','ei@email.com',6214545,'2022-03-01');
+
+INSERT INTO productos (codigo,tipo,cantidad,precio,marca,fecha_ingreso,descripcion) VALUES (0001,'Limpieza',3,10.90,"UNEX",'2022-03-01',"Lejía");
+INSERT INTO productos (codigo,tipo,cantidad,precio,marca,fecha_ingreso,descripcion) VALUES (0002,'Alimentación',2,5.90,"Alimerka",'2022-03-01',"Pollo");

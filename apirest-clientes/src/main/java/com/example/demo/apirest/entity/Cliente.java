@@ -21,8 +21,12 @@ public class Cliente {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)//generación clave primaria
 	private Long id;
+	
+	@Column(nullable=false)
 	private String nombre;
 	private String apellido;
+	
+	@Column(nullable=false,unique=true)
 	private String email;
 	private int telefono;
 	@Column(name="created_at")

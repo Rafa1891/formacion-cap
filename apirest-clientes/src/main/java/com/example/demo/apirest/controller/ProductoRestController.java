@@ -15,36 +15,35 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.apirest.entity.Cliente;
-import com.example.demo.apirest.service.ClienteService;
+
+import com.example.demo.apirest.entity.Producto;
+import com.example.demo.apirest.service.ProductoService;
 
 @RestController
 @RequestMapping("/api")
-public class ClienteRestController {
+public class ProductoRestController {
 
 	@Autowired
-	private ClienteService servicio;
-	@GetMapping({"/clientes","/todos"})//peticion tipo get rutas clientes y todos
-	public List<Cliente> index(){
+	private ProductoService servicio;
+	
+	@GetMapping("/productos")
+	public List<Producto> index(){
 		return servicio.findAll();
 	}
-	/*
-	@GetMapping("/clientes/{id}")
-	public Cliente buscarClienteporId(@PathVariable Long id){
-		return servicio.findById(id);
-	}*/
-	@GetMapping("/clientes/{id}")
-	public ResponseEntity<?> buscarClienteporId(@PathVariable Long id){
+	
+
+	@GetMapping("/productos/{id}")
+	public ResponseEntity<?> buscarProductoporId(@PathVariable Long id){
 		
-		Cliente cliente=null;
+		Producto producto=null;
 		
 		Map<String,Object> response=new HashMap<>();
 		
 		try {
-			cliente=  servicio.findById(id);
+			producto=  servicio.findById(id);
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar consulta");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
@@ -52,86 +51,68 @@ public class ClienteRestController {
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		if(cliente==null) {
-			response.put("mensaje", "El cliente id:".concat(id.toString().concat(" no existe en la BD.")));
+		if(producto==null) {
+			response.put("mensaje", "El producto id:".concat(id.toString().concat(" no existe en la BD.")));
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<Cliente>(cliente,HttpStatus.OK);
+		return new ResponseEntity<Producto>(producto,HttpStatus.OK);
 	}
 	
-	/*
-	@PostMapping("/cliente")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente guardarCliente(@RequestBody Cliente cliente) {// recibe el body y lo guarda en obj cliente
-		return servicio.save(cliente);
-	}
-	*/
-	@PostMapping("/cliente")
-	public ResponseEntity<?> guardarCliente(@RequestBody Cliente cliente) {
+	
+	@PostMapping("/producto")
+	public ResponseEntity<?> guardarProducto(@RequestBody Producto producto) {
 		
-		Cliente clienteNuevo=null;
+        Producto productoNuevo=null;
 		Map<String,Object> response=new HashMap<>();
 		
 		try {
-			clienteNuevo=servicio.save(cliente);
+			productoNuevo=servicio.save(producto);
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar inserción.");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		response.put("mensaje", "EL cliente fue creado con éxito.");
-		response.put("cliente", clienteNuevo);
+		response.put("mensaje", "EL producto fue creado con éxito.");
+		response.put("producto", productoNuevo);
 		
 		
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.CREATED);
 	}
 	
-	/*
-	@PutMapping("/cliente/{id}")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente actualizarCliente(@RequestBody Cliente c,@PathVariable Long id) {
-		Cliente cliActualizar=servicio.findById(id);
+	
+	@PutMapping("/producto/{id}")
+	public ResponseEntity<?> actualizarProducto(@RequestBody Producto p,@PathVariable Long id) {
 		
-		cliActualizar.setNombre(c.getNombre());
-		cliActualizar.setApellido(c.getApellido());
-		cliActualizar.setEmail(c.getEmail());
-		cliActualizar.setTelefono(c.getTelefono());
-		cliActualizar.setCreatedAt(c.getCreatedAt());
-		
-		return servicio.save(cliActualizar);
-	}
-	*/
-	@PutMapping("/cliente/{id}")
-	public ResponseEntity<?> actualizarCliente(@RequestBody Cliente c,@PathVariable Long id) {
-		
-		Cliente cliActualizar=servicio.findById(id);
+		Producto proActualizar=servicio.findById(id);
 		
 		Map<String,Object> response=new HashMap<>();
 		
-		if(cliActualizar==null) {
-			response.put("mensaje", "El cliente id:".concat(id.toString().concat(" no existe en la BD.")));
+		if(proActualizar==null) {
+			response.put("mensaje", "El producto id:".concat(id.toString().concat(" no existe en la BD.")));
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 		}
 		
 				
 		try {
-			cliActualizar.setNombre(c.getNombre());
-			cliActualizar.setApellido(c.getApellido());
-			cliActualizar.setEmail(c.getEmail());
-			cliActualizar.setTelefono(c.getTelefono());
-			cliActualizar.setCreatedAt(c.getCreatedAt());
+			proActualizar.setCodigo(p.getCodigo());
+			proActualizar.setTipo(p.getTipo());
+			proActualizar.setCantidad(p.getCantidad());
+			proActualizar.setPrecio(p.getPrecio());
+			proActualizar.setMarca(p.getMarca());
+			proActualizar.setFecha_ingreso(p.getFecha_ingreso());
+			proActualizar.setDescripcion(p.getDescripcion());
 			
-			servicio.save(cliActualizar);
+			servicio.save(proActualizar);
 		} catch (DataAccessException e) {
 			response.put("mensaje", "Error al realizar actualización.");
 			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
 			
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		response.put("mensaje", "EL cliente fue actualizado con éxito.");
-		response.put("cliente", cliActualizar);
+		response.put("mensaje", "EL producto fue actualizado con éxito.");
+		response.put("producto", proActualizar);
 		
 		
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.CREATED);
@@ -140,17 +121,11 @@ public class ClienteRestController {
 	}
 	
 	
-	/*
-	@DeleteMapping("/cliente/{id}")
-	public void eliminarCliente(@PathVariable Long id) {
-		servicio.delete(id);
-	}
 	
-	*/
-	@DeleteMapping("/cliente/{id}")
-	public ResponseEntity<?> eliminarCliente(@PathVariable Long id) {
+	@DeleteMapping("/producto/{id}")
+	public ResponseEntity<?> eliminarProducto(@PathVariable Long id) {
 				
-		Cliente cliente=null;
+		Producto producto=null;
 		Map<String,Object> response=new HashMap<>();
 		
 		try {
@@ -163,11 +138,10 @@ public class ClienteRestController {
 		}
 		
 		if(id==null) {
-			response.put("mensaje", "El cliente id:".concat(id.toString().concat(" no existe en la BD.")));
+			response.put("mensaje", "El producto id:".concat(id.toString().concat(" no existe en la BD.")));
 			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 		}
 		response.put("mensaje", "Eliminado con éxito.");
-		return new ResponseEntity<Cliente>(cliente,HttpStatus.OK);
+		return new ResponseEntity<Producto>(producto,HttpStatus.OK);
 	}
-	
 }
