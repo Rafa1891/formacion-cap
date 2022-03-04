@@ -16,6 +16,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name="usuarios")
 public class Usuario implements Serializable{
@@ -36,11 +38,15 @@ public class Usuario implements Serializable{
 	
 	private Boolean enabled;
 	
-	@ManyToMany(fetch=FetchType.LAZY,cascade=CascadeType.ALL)//restricciones en cascada para la integridad referencial
-	@JoinTable(name="usuarios_roles",joinColumns=@JoinColumn(name="usuario_id"),//se crea una tercera tabla n:m
+	//restricciones en cascada para la integridad referencial
+	//se crea una tercera tabla n:m
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name="usuarios_roles",joinColumns=@JoinColumn(name="usuario_id"),
 	inverseJoinColumns=@JoinColumn(name="rol_id"),
-	uniqueConstraints= {@UniqueConstraint(columnNames= {"usuario_id","rol_id"})})		
+	uniqueConstraints= {@UniqueConstraint(columnNames={"usuario_id","rol_id"})})
+	@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
 	private List<Rol> roles;
+
 	
 	
 	

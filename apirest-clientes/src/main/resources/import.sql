@@ -24,3 +24,13 @@ INSERT INTO clientes (region_id,nombre,apellido,email,telefono,created_at) VALUE
 INSERT INTO productos (codigo,tipo,cantidad,precio,marca,fecha_ingreso,descripcion) VALUES (0001,'Limpieza',3,10.90,"UNEX",'2022-03-01',"Lejía");
 INSERT INTO productos (codigo,tipo,cantidad,precio,marca,fecha_ingreso,descripcion) VALUES (0002,'Alimentación',2,5.90,"Alimerka",'2022-03-01',"Pollo");
 
+INSERT INTO usuarios (username,password,enabled) VALUES ('Pedro','$2a$10$rku6sc1U3q86zpB8K9UFyemdgZQDVjnWNhtzZZ5iv0qu8OqIYpf9e',1);
+INSERT INTO usuarios (username,password,enabled) VALUES ('Rafa','$2a$10$z7qJg2vQ5Gqaz1sqPdL3WePBw8NeWcHZNjz47ZpUCcG4yz7vjTGTy',1);
+
+INSERT INTO roles (nombre) VALUES ('ROLE_USER');
+INSERT INTO roles (nombre) VALUES ('ROLE_ADMIN');
+
+INSERT INTO usuarios_roles (usuario_id,rol_id) VALUES(1,1);
+INSERT INTO usuarios_roles (usuario_id,rol_id) VALUES(2,2);
+INSERT INTO usuarios_roles (usuario_id,rol_id) VALUES(2,1);
+

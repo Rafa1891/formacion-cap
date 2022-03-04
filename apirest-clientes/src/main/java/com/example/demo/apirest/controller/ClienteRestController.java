@@ -196,7 +196,7 @@ public class ClienteRestController {
 	}
 	
 	@PostMapping("cliente/subida")
-	public ResponseEntity<?> subida(@RequestParam("archivo") MultipartFile archivo, @RequestParam("id") Long id){// requestparamasocia un archivo a una imagen
+	public ResponseEntity<?> subida(@RequestParam("archivo") MultipartFile archivo, @RequestParam("id") Long id){// requestparam asocia un archivo a una imagen
 		Map<String,Object> response=new HashMap<>();
 		
 		Cliente c=servicio.findById(id);
